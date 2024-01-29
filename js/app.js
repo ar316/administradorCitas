@@ -16,7 +16,8 @@ class Citas{
     }
 
     agregarCita(cita){
-        this.citas = [this.citas,cita];
+        this.citas = [...this.citas,cita];
+        console.log(this.citas);
 
     }
 
@@ -30,14 +31,35 @@ class Citas{
 
 class UI{
 
-    mostrarCita(citas){
+    mostrarCita(admin){
+        const {citas} = admin;
         contenedorCitashtml.innerHTML = "";
         citas.forEach(e => {
             const div = document.createElement('div');
-            div.innerHTML = `<p> Paciente: ${e.mascota}</p>`;
+            div.innerHTML = `<p> Nombre Mascota: ${e.mascota}</p>`;
             contenedorCitashtml.appendChild(div);
         });
     }
+
+    imprimirAlerta(mensaje, error){
+        const divMensaje = document.createElement('div');
+        divMensaje.classList.add('text-center', 'alert', 'd-block', 'col-12');
+        if(error){
+            divMensaje.classList.add('alert-danger');
+        }else{
+            divMensaje.classList.add('alert-success');
+        }
+
+        divMensaje.textContent = mensaje;
+        document.querySelector('#contenido').insertBefore(divMensaje, document.querySelector('.agregar-cita'));
+
+
+        //quitar la alerta 
+        setTimeout(()=>{
+            divMensaje.remove();
+        }, 2000);
+    }
+
 
 }
 
@@ -57,6 +79,7 @@ function eventos(){
 }
 
 const CitaObj={
+   
     mascota: "",
     propietario: "",
     telefono: "",
@@ -67,23 +90,34 @@ const CitaObj={
 
 function datosCita(e){
     const name = e.target.name;
-    CitaObj[name] = e.target.value;
-    console.log(CitaObj);
-   
-    
-    
-
+    CitaObj[name] = e.target.value;  
+    console.log( CitaObj)
 }
+
 function ValidarDatos(e){
     e.preventDefault();
+
     const datosLLenos = Object.values(CitaObj).includes("");
     console.log(datosLLenos);
-    if(!datosLLenos){
-        administradorCitas.agregarCita(CitaObj);
-        const { citas} = administradorCitas;
-        ui.mostrarCita(citas);
-        formulario.reset();
+    if(datosLLenos){
+        ui.imprimirAlerta("todos los datos son obligatorios", "error");
+        console.log("todos los datos son necesarios");
         return;
     }
+    console.log(CitaObj);
+    CitaObj.id = Date.now();
+    //generar un id unico
+    administradorCitas.agregarCita({...CitaObj});
+    
+    
+    
+    limpiarObjeto();
+    formulario.reset();
+     ui.mostrarCita(administradorCitas);
 
+
+}
+
+function limpiarObjeto(){
+    Object.keys(CitaObj).filter((prop)=> prop !== "id" ).forEach((prop)=>{CitaObj[prop] =""});
 }
