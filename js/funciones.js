@@ -2,7 +2,7 @@ import Citas from './classes/Citas.js'
 import UI from './classes/UI.js'
 import { mascotaInput, propietarioInput, telefonoInput, fechaInput, horaInput, sintomasInput, formulario } from './selectores.js';
 
-let DB;
+export let DB;
 const ui = new UI();
 const administrarCitas = new Citas();
 
@@ -40,11 +40,8 @@ export function nuevaCita(e) {
         // Estamos editando
         administrarCitas.editarCita( {...citaObj} );
 
-        ui.imprimirAlerta('Guardado Correctamente');
-
-        formulario.querySelector('button[type="submit"]').textContent = 'Crear Cita';
-
-        editando = false;
+        EdidatRegistro(citaObj);
+       
 
     } else {
         // Nuevo Registrando
@@ -65,7 +62,7 @@ export function nuevaCita(e) {
 
 
     // Imprimir el HTML de citas
-    ui.imprimirCitas(administrarCitas);
+    ui.imprimirCitas();
 
     // Reinicia el objeto para evitar futuros problemas de validación
     reiniciarObjeto();
@@ -89,7 +86,7 @@ export function reiniciarObjeto() {
 export function eliminarCita(id) {
     administrarCitas.eliminarCita(id);
 
-    ui.imprimirCitas(administrarCitas)
+    ui.imprimirCitas()
 }
 
 export function cargarEdicion(cita) {
@@ -129,6 +126,7 @@ export function createDataBase(){
     dataBase.onsuccess = () =>{
         console.log('base de datos creada correctamente');
         DB = dataBase.result;
+        ui.imprimirCitas();
     }
 
 
@@ -165,4 +163,22 @@ function agregarRegistro(cita){
     const objectStore = transaction.objectStore("citas");
 
     objectStore.add(cita);
+}
+
+
+function EdidatRegistro(cita){
+    const transaction = DB.transaction(['citas'],'readwrite');
+    const objectStore = transaction.objectStore("citas");
+    objectStore.put(cita);
+
+    transaction.oncomplete = function(){
+        ui.imprimirAlerta('Guardado Correctamente');
+
+        formulario.querySelector('button[type="submit"]').textContent = 'Crear Cita';
+
+        editando = false;
+    }
+    
+
+
 }
