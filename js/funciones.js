@@ -2,7 +2,7 @@ import Citas from './classes/Citas.js'
 import UI from './classes/UI.js'
 import { mascotaInput, propietarioInput, telefonoInput, fechaInput, horaInput, sintomasInput, formulario } from './selectores.js';
 
-
+let DB;
 const ui = new UI();
 const administrarCitas = new Citas();
 
@@ -51,12 +51,16 @@ export function nuevaCita(e) {
 
         // Generar un ID único
         citaObj.id = Date.now();
+
+        //insetando cita en la base de datos 
+        
         
         // Añade la nueva cita
         administrarCitas.agregarCita({...citaObj});
+        agregarRegistro(citaObj);
 
         // Mostrar mensaje de que todo esta bien...
-        ui.imprimirAlerta('Se agregó correctamente')
+       
     }
 
 
@@ -113,4 +117,52 @@ export function cargarEdicion(cita) {
 
     editando = true;
 
+}
+
+export function createDataBase(){
+    let dataBase = window.indexedDB.open('citas', 1);
+
+    dataBase.onerror = () =>{
+        console.log('ha habido un error');
+    }
+    //verificar  si se creó bien la base de datos
+    dataBase.onsuccess = () =>{
+        console.log('base de datos creada correctamente');
+        DB = dataBase.result;
+    }
+
+
+    dataBase.onupgradeneeded = function(e){
+        const db = e.target.result;
+        //crea la tabla de la base de datos 
+        const objectStore = db.createObjectStore('citas',{
+            keyPath: 'id',
+            autoIncrement: true
+        })
+
+        objectStore.createIndex('nombreMascota', 'nombreMascota', {unique: false});
+        objectStore.createIndex('propietario', 'propietario', {unique: false});
+        objectStore.createIndex('telefono', 'telefono', {unique: false});
+        objectStore.createIndex('sintomas', 'sintomas', {unique: false});
+        objectStore.createIndex('hora', 'hora', {unique: false});
+        objectStore.createIndex('fecha', 'fecha', {unique: false});
+
+
+    }
+
+}
+
+
+function agregarRegistro(cita){
+    const transaction = DB.transaction(['citas'],'readwrite');
+    transaction.onerror = function(){
+        console.log("ha habido un error");
+    }
+
+    transaction.oncomplete = function(){
+        ui.imprimirAlerta('Se agregó correctamente')
+    }
+    const objectStore = transaction.objectStore("citas");
+
+    objectStore.add(cita);
 }
