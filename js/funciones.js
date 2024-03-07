@@ -83,11 +83,7 @@ export function reiniciarObjeto() {
 }
 
 
-export function eliminarCita(id) {
-    administrarCitas.eliminarCita(id);
 
-    ui.imprimirCitas()
-}
 
 export function cargarEdicion(cita) {
 
@@ -180,5 +176,29 @@ function EdidatRegistro(cita){
     }
     
 
+
+}
+export function eliminarCita(id) {
+    
+    administrarCitas.eliminarCita(id);
+    EliminarRegistro(id);
+
+    
+}
+
+
+function EliminarRegistro(id){
+
+    const transaction = DB.transaction(['citas'],'readwrite');
+    const objectStore = transaction.objectStore("citas");
+    console.log(id);
+    objectStore.delete(id);
+
+    transaction.oncomplete = function(){
+        ui.imprimirAlerta('cita eliminada correctamente');
+
+        ui.imprimirCitas()
+    }
+    
 
 }

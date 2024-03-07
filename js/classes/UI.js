@@ -62,7 +62,7 @@ class UI {
         
                     const sintomasParrafo = document.createElement('p');
                     sintomasParrafo.innerHTML = `<span class="font-weight-bolder">Síntomas: </span> ${sintomas}`;
-        
+                    const cita = cursor.value;
                     // Agregar un botón de eliminar...
                     const btnEliminar = document.createElement('button');
                     btnEliminar.onclick = () => eliminarCita(id); // añade la opción de eliminar
@@ -71,7 +71,7 @@ class UI {
         
                     // Añade un botón de editar...
                     const btnEditar = document.createElement('button');
-                    const cita = cursor.value;
+                    
                     btnEditar.onclick = () => cargarEdicion(cita);
         
                     btnEditar.classList.add('btn', 'btn-info');
